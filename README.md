@@ -295,6 +295,7 @@ User Speech → Whisper STT → Gemma-3 Processing → Kokoro TTS → Audio Resp
 - RAM: 32GB
 - Storage: SSD
 - GPU: NVIDIA RTX 2060 (6GB VRAM)
+- **Cuda toolkit 12.5**
 
 ### Performance Tips
 

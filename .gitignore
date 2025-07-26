@@ -70,15 +70,9 @@ logs/
 .env.test.local
 .env.production.local
 
-# Jupyter Notebook
-.ipynb_checkpoints
 
-# Data files (uncomment if you want to exclude data)
-# data/
-# *.pdf
-# *.csv
-# *.json
-# *.txt
+
+
 
 # Temporary files
 *.tmp

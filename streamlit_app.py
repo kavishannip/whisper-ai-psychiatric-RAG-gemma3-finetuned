@@ -1,14 +1,25 @@
 # streamlit_app.py
-#v1
+#v2 - Added Speech-to-Text and Text-to-Speech features
 import streamlit as st
 import logging
 import torch
 import torch._dynamo
 import os
-from transformers import AutoTokenizer, AutoModelForCausalLM
+import re
+from transformers import AutoTokenizer, AutoModelForCausalLM, WhisperProcessor, WhisperForConditionalGeneration
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
 import time
+import librosa
+import soundfile as sf
+import numpy as np
+from pathlib import Path
+import tempfile
+import base64
+from io import BytesIO
+import wave
+import scipy.io.wavfile as wavfile
+from audio_recorder_streamlit import audio_recorder
 
 # 🔧 COMPLETE TORCH COMPILATION DISABLE for Windows compatibility
 os.environ["TORCH_COMPILE_DISABLE"] = "1"
@@ -163,6 +174,14 @@ if "model_loaded" not in st.session_state:
     st.session_state.model_loaded = False
 if "faiss_loaded" not in st.session_state:
     st.session_state.faiss_loaded = False
+if "whisper_loaded" not in st.session_state:
+    st.session_state.whisper_loaded = False
+if "tts_enabled" not in st.session_state:
+    st.session_state.tts_enabled = True
+if "audio_speed" not in st.session_state:
+    st.session_state.audio_speed = 1.0
+if "kokoro_loaded" not in st.session_state:
+    st.session_state.kokoro_loaded = False
 
 # 📊 Sidebar for model status and settings
 with st.sidebar:
@@ -178,6 +197,23 @@ with st.sidebar:
         st.success("✅ FAISS Index Loaded")
     else:
         st.error("❌ FAISS Index Not Loaded")
+    
+    if st.session_state.whisper_loaded:
+        st.success("✅ Speech-to-Text Loaded")
+    else:
+        st.error("❌ Speech-to-Text Not Loaded")
+    
+    if st.session_state.kokoro_loaded:
+        st.success("✅ Text-to-Speech Loaded")
+    else:
+        st.error("❌ Text-to-Speech Not Loaded")
+    
+    st.divider()
+    
+    # Audio Settings
+    st.header("🎤 Audio Settings")
+    st.session_state.tts_enabled = st.checkbox("Enable Text-to-Speech", value=st.session_state.tts_enabled)
+    st.session_state.audio_speed = st.slider("Audio Speed", 0.5, 2.0, 1.0, 0.1)
     
     st.divider()
     
@@ -250,6 +286,339 @@ def load_model():
     except Exception as e:
         st.error(f"Failed to load model: {e}")
         return None, None
+
+@st.cache_resource
+def load_whisper_model():
+    """Load Whisper speech-to-text model with caching"""
+    try:
+        model_path = "stt-model/whisper-tiny"
+        
+        processor = WhisperProcessor.from_pretrained(model_path)
+        
+        # Load model with proper dtype configuration
+        model = WhisperForConditionalGeneration.from_pretrained(
+            model_path,
+            torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
+            device_map="auto" if torch.cuda.is_available() else None,
+            low_cpu_mem_usage=True
+        )
+        
+        # If on CPU, ensure model is in float32
+        if not torch.cuda.is_available():
+            model = model.float()
+        
+        return model, processor
+    except Exception as e:
+        st.error(f"Failed to load Whisper model: {e}")
+        return None, None
+
+# 🎵 Audio Processing Functions
+def transcribe_audio(audio_data, whisper_model, whisper_processor):
+    """
+    Transcribe audio data using Whisper model
+    
+    Args:
+        audio_data: Raw audio data
+        whisper_model: Loaded Whisper model
+        whisper_processor: Whisper processor
+    
+    Returns:
+        str: Transcribed text
+    """
+    try:
+        # Convert audio data to the format expected by Whisper
+        if isinstance(audio_data, bytes):
+            # Save audio data to temporary file
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
+                tmp_file.write(audio_data)
+                tmp_file_path = tmp_file.name
+            
+            # Load audio using librosa
+            try:
+                audio_array, sampling_rate = librosa.load(tmp_file_path, sr=16000, dtype=np.float32)
+            except Exception as e:
+                # Fallback: try using soundfile
+                audio_array, sampling_rate = sf.read(tmp_file_path)
+                if sampling_rate != 16000:
+                    audio_array = librosa.resample(audio_array, orig_sr=sampling_rate, target_sr=16000)
+                # Ensure float32 dtype
+                audio_array = audio_array.astype(np.float32)
+            
+            # Clean up temporary file
+            os.unlink(tmp_file_path)
+        else:
+            audio_array = audio_data
+            sampling_rate = 16000
+            # Ensure float32 dtype
+            if hasattr(audio_array, 'astype'):
+                audio_array = audio_array.astype(np.float32)
+        
+        # Ensure audio is normalized and in correct format
+        if isinstance(audio_array, np.ndarray):
+            # Normalize audio to [-1, 1] range if needed
+            if np.max(np.abs(audio_array)) > 1.0:
+                audio_array = audio_array / np.max(np.abs(audio_array))
+            
+            # Ensure float32 dtype
+            audio_array = audio_array.astype(np.float32)
+        
+        # Process audio with Whisper
+        try:
+            # Try with language parameter first
+            input_features = whisper_processor(
+                audio_array, 
+                sampling_rate=16000, 
+                return_tensors="pt",
+                language="english"  # Set default language to English
+            ).input_features
+        except Exception as proc_error:
+            # Fallback without language parameter
+            input_features = whisper_processor(
+                audio_array, 
+                sampling_rate=16000, 
+                return_tensors="pt"
+            ).input_features
+        
+        # Get device and model info
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        model_dtype = next(whisper_model.parameters()).dtype
+        
+        # Convert input features to match model dtype
+        input_features = input_features.to(device=device, dtype=model_dtype)
+        
+        # Generate transcription with error handling
+        try:
+            with torch.no_grad():
+                # Force English language using forced_decoder_ids
+                forced_decoder_ids = whisper_processor.get_decoder_prompt_ids(language="english", task="transcribe")
+                predicted_ids = whisper_model.generate(
+                    input_features,
+                    max_length=448,  # Standard max length for Whisper
+                    num_beams=1,     # Faster generation
+                    do_sample=False, # Deterministic output
+                    forced_decoder_ids=forced_decoder_ids  # Force English language
+                )
+        except RuntimeError as e:
+            if "dtype" in str(e).lower():
+                # Try forcing float32 for both input and model
+                input_features = input_features.float()
+                if torch.cuda.is_available():
+                    whisper_model = whisper_model.float()
+                with torch.no_grad():
+                    forced_decoder_ids = whisper_processor.get_decoder_prompt_ids(language="english", task="transcribe")
+                    predicted_ids = whisper_model.generate(
+                        input_features,
+                        max_length=448,
+                        num_beams=1,
+                        do_sample=False,
+                        forced_decoder_ids=forced_decoder_ids  # Force English language
+                    )
+            else:
+                raise e
+        except Exception as generation_error:
+            # Fallback: try without forced_decoder_ids if it's not supported
+            try:
+                with torch.no_grad():
+                    predicted_ids = whisper_model.generate(
+                        input_features,
+                        max_length=448,
+                        num_beams=1,
+                        do_sample=False
+                    )
+            except Exception as final_error:
+                raise final_error
+        
+        # Decode transcription
+        transcription = whisper_processor.batch_decode(predicted_ids, skip_special_tokens=True)[0]
+        
+        return transcription.strip()
+    
+    except Exception as e:
+        st.error(f"Error transcribing audio: {e}")
+        logging.error(f"Transcription error: {e}")
+        return ""
+
+@st.cache_resource
+def load_kokoro_tts_model():
+    """Load Kokoro-82M TTS model with caching"""
+    try:
+        # Try importing the kokoro package
+        try:
+            from kokoro import KPipeline
+            
+            # Check if local model path exists (for information only)
+            local_model_path = "tts-model/Kokoro-82M"
+            if os.path.exists(local_model_path):
+                st.info(f"✅ Local Kokoro-82M model found at {local_model_path}")
+            
+            # Initialize Kokoro pipeline with default model (local path not supported in current version)
+            pipeline = KPipeline(lang_code='a')  # 'a' for American English
+            st.info("✅ Kokoro-82M TTS model loaded successfully!")
+            
+            return pipeline
+        
+        except ImportError as e:
+            st.info(f"Kokoro package issue: {e}. Using fallback audio generation.")
+            return None
+        
+        except Exception as e:
+            st.info(f"Could not initialize Kokoro pipeline: {e}. Using fallback audio generation.")
+            return None
+    
+    except Exception as e:
+        st.info(f"Error loading Kokoro-82M model: {e}. Using fallback audio generation.")
+        return None
+
+def generate_speech(text, speed=1.0):
+    """
+    Generate speech from text using Kokoro-82M or fallback tone generation
+    
+    Args:
+        text (str): Text to convert to speech
+        speed (float): Speed of speech
+    
+    Returns:
+        bytes: Audio data in WAV format
+    """
+    try:
+        # First try to load Kokoro model if not already cached
+        if not hasattr(st.session_state, 'kokoro_pipeline'):
+            st.session_state.kokoro_pipeline = load_kokoro_tts_model()
+        
+        # Try using Kokoro-82M if available
+        if st.session_state.kokoro_pipeline is not None:
+            try:
+                # Limit text length for reasonable processing time
+                text_to_speak = text[:500] if len(text) > 500 else text
+                
+                # Clean text for better TTS output
+                text_to_speak = text_to_speak.replace('\n', ' ').replace('\t', ' ')
+                # Remove special markdown formatting
+                text_to_speak = text_to_speak.replace('**', '').replace('*', '').replace('_', '')
+                # Remove emojis and special characters
+                text_to_speak = re.sub(r'[^\w\s.,!?;:\-\'"()]', ' ', text_to_speak)
+                # Clean up multiple spaces
+                text_to_speak = re.sub(r'\s+', ' ', text_to_speak).strip()
+                
+                if not text_to_speak:
+                    raise ValueError("No valid text to synthesize after cleaning")
+                
+                
+                
+                # Generate audio using Kokoro
+                generator = st.session_state.kokoro_pipeline(text_to_speak, voice='af_heart')
+                
+                # Get the first audio chunk from the generator
+                for i, (gs, ps, audio) in enumerate(generator):
+                    if i == 0:  # Use the first generated audio
+                        # Convert audio to bytes
+                        audio_buffer = BytesIO()
+                        
+                        # Adjust speed if needed
+                        if speed != 1.0:
+                            audio = librosa.effects.time_stretch(audio, rate=speed)
+                        
+                        # Write audio to buffer
+                        sf.write(audio_buffer, audio, 24000, format='WAV')
+                        
+                        # Get bytes from buffer
+                        audio_buffer.seek(0)
+                        audio_bytes = audio_buffer.getvalue()
+                        audio_buffer.close()
+                        
+                        
+                        return audio_bytes
+                        
+                # If no audio generated, fall back
+                raise ValueError("No audio generated from Kokoro")
+                
+            except Exception as kokoro_error:
+                st.warning(f"⚠️ Kokoro TTS failed: {str(kokoro_error)}. Using fallback audio generation.")
+                # Continue to fallback
+        else:
+            st.warning("⚠️ Kokoro TTS not available. Using fallback audio generation.")
+        
+        # Fallback: Generate improved audio using numpy (fixed file handling)
+        
+        
+        # Limit text length for reasonable audio duration
+        text_preview = text[:500] if len(text) > 500 else text
+        
+        # Calculate duration based on text length and speech speed
+        words_per_minute = 150  # Average speaking rate
+        words = len(text_preview.split())
+        duration = (words / words_per_minute) * 60 / speed
+        duration = max(1.0, min(duration, 30.0))  # Limit between 1-30 seconds
+        
+        sample_rate = 22050
+        
+        # Generate more natural-sounding audio (simple speech synthesis simulation)
+        t = np.linspace(0, duration, int(sample_rate * duration))
+        
+        # Create a more speech-like waveform with multiple frequencies
+        audio_data = np.zeros_like(t)
+        
+        # Add multiple frequency components to simulate speech
+        fundamental_freq = 120  # Male voice fundamental frequency
+        for harmonic in range(1, 6):  # Add harmonics
+            freq = fundamental_freq * harmonic
+            amplitude = 0.2 / harmonic  # Decreasing amplitude for higher harmonics
+            # Add slight frequency modulation to make it more natural
+            freq_mod = freq * (1 + 0.05 * np.sin(2 * np.pi * 3 * t))
+            audio_data += amplitude * np.sin(2 * np.pi * freq_mod * t)
+        
+        # Add some amplitude modulation to simulate speech patterns
+        envelope = 0.5 * (1 + 0.3 * np.sin(2 * np.pi * 2 * t))
+        audio_data *= envelope
+        
+        # Apply speed adjustment
+        if speed != 1.0:
+            new_length = int(len(audio_data) / speed)
+            audio_data = np.interp(
+                np.linspace(0, len(audio_data), new_length),
+                np.arange(len(audio_data)),
+                audio_data
+            )
+        
+        # Normalize and convert to int16
+        audio_data = audio_data / np.max(np.abs(audio_data))  # Normalize
+        audio_data = (audio_data * 0.5 * 32767).astype(np.int16)  # Reduce volume and convert
+        
+        # Create audio bytes using BytesIO to avoid file locking issues
+        audio_buffer = BytesIO()
+        
+        # Write WAV data to buffer instead of file
+        with wave.open(audio_buffer, 'wb') as wav_file:
+            wav_file.setnchannels(1)  # Mono
+            wav_file.setsampwidth(2)  # 2 bytes per sample (int16)
+            wav_file.setframerate(sample_rate)
+            wav_file.writeframes(audio_data.tobytes())
+        
+        # Get bytes from buffer
+        audio_buffer.seek(0)
+        audio_bytes = audio_buffer.getvalue()
+        audio_buffer.close()
+        
+        st.info("⚡ Fallback audio generated.")
+        return audio_bytes
+    
+    except Exception as e:
+        st.error(f"Error generating speech: {e}")
+        logging.error(f"TTS error: {e}")
+        return None
+
+def create_audio_player(audio_bytes, autoplay=False):
+    """Create an HTML audio player for the generated speech"""
+    if audio_bytes:
+        audio_base64 = base64.b64encode(audio_bytes).decode()
+        audio_html = f"""
+        <audio {'autoplay' if autoplay else ''} controls>
+            <source src="data:audio/wav;base64,{audio_base64}" type="audio/wav">
+            Your browser does not support the audio element.
+        </audio>
+        """
+        return audio_html
+    return ""
 
 # 🧠 Enhanced Core Functions with Crisis Detection
 def detect_crisis_indicators(question: str) -> tuple:
@@ -448,7 +817,9 @@ CRISIS RESOURCES TO INCLUDE WHEN APPROPRIATE:
         crisis_notice = f"\n🚨 MODERATE CRISIS DETECTED: {crisis_type.upper()} - Include appropriate support resources in response.\n"
     
     return f"""<|im_start|>system
-You are Whisper, a compassionate mental health assistant developed by DeepFinders at SLTC Research University. You offer accurate, supportive psychological guidance based on the given context. Always be empathetic, professional, and communicate with clarity and care.
+Your Name is "Whisper". You are a mental health assistant developed by "DeepFinders" at "SLTC Research University". You offer accurate, supportive psychological guidance based on the given context. Always be empathetic, professional, and communicate with clarity and care.
+
+IMPORTANT: Always respond in English language only. Do not use any other languages in your responses.
 
 {safety_guidelines}
 
@@ -463,6 +834,7 @@ Guidelines:
 - Consider cultural sensitivity and individual differences
 - Provide resources or techniques that can be helpful for mental health
 - ALWAYS assess for safety concerns and provide crisis resources when needed
+- RESPOND ONLY IN ENGLISH LANGUAGE
 
 {crisis_notice}
 <|im_end|>
@@ -700,7 +1072,7 @@ def main():
     st.markdown("---")
     
     # Load models with progress indication
-    if not st.session_state.model_loaded or not st.session_state.faiss_loaded:
+    if not st.session_state.model_loaded or not st.session_state.faiss_loaded or not st.session_state.whisper_loaded or not st.session_state.kokoro_loaded:
         with st.spinner("Loading models... This may take a few minutes on first run."):
             # Load FAISS index
             if not st.session_state.faiss_loaded:
@@ -718,8 +1090,22 @@ def main():
                     st.session_state.model = model
                     st.session_state.tokenizer = tokenizer
                     st.session_state.model_loaded = True
+            
+            # Load Whisper model
+            if not st.session_state.whisper_loaded:
+                whisper_model, whisper_processor = load_whisper_model()
+                if whisper_model is not None:
+                    st.session_state.whisper_model = whisper_model
+                    st.session_state.whisper_processor = whisper_processor
+                    st.session_state.whisper_loaded = True
+            
+            # Load Kokoro TTS model
+            if not st.session_state.kokoro_loaded:
+                kokoro_pipeline = load_kokoro_tts_model()
+                st.session_state.kokoro_pipeline = kokoro_pipeline
+                st.session_state.kokoro_loaded = True
         
-        if st.session_state.model_loaded and st.session_state.faiss_loaded:
+        if st.session_state.model_loaded and st.session_state.faiss_loaded and st.session_state.whisper_loaded and st.session_state.kokoro_loaded:
             st.success("🎉 All models loaded successfully!")
             time.sleep(1)  # Brief pause for user to see success message
             st.rerun()
@@ -763,6 +1149,22 @@ def main():
                     {clean_content}
                 </div>
                 """, unsafe_allow_html=True)
+                
+                # Text-to-Speech functionality
+                if st.session_state.tts_enabled:
+                    col1, col2 = st.columns([1, 4])
+                    with col1:
+                        if st.button(f"🔊 Play", key=f"tts_{len(st.session_state.messages)}_{hash(message['content'])}"):
+                            with st.spinner("Generating speech..."):
+                                # Generate audio for the response
+                                audio_bytes = generate_speech(message["content"], speed=st.session_state.audio_speed)
+                                if audio_bytes:
+                                    audio_html = create_audio_player(audio_bytes, autoplay=True)
+                                    st.markdown(audio_html, unsafe_allow_html=True)
+                                else:
+                                    st.error("Could not generate speech")
+                    with col2:
+                        pass
                 
                 # Display sources if available
                 if "sources" in message and message["sources"]:
@@ -833,6 +1235,137 @@ def main():
         
         # Rerun to display the new messages
         st.rerun()
+
+    # Audio Input Section
+    st.markdown("---")
+    st.markdown("### 🎤 Voice Input")
+    col1, col2 = st.columns([3, 1])
+    
+    with col1:
+        # Use a simple file uploader as fallback if audio_recorder is not available
+        try:
+            audio_bytes = audio_recorder(
+                text="Click to record",
+                recording_color="#a6e3a1",
+                neutral_color="#313244",
+                icon_name="microphone",
+                icon_size="2x",
+            )
+            
+            if audio_bytes:
+                st.audio(audio_bytes, format="audio/wav")
+                
+                # Transcribe the audio
+                if st.button("🔄 Transcribe Audio"):
+                    with st.spinner("Transcribing your speech..."):
+                        transcribed_text = transcribe_audio(
+                            audio_bytes, 
+                            st.session_state.whisper_model, 
+                            st.session_state.whisper_processor
+                        )
+                        if transcribed_text:
+                            st.success(f"Transcribed: {transcribed_text}")
+                            # Add transcribed text to chat
+                            st.session_state.messages.append({"role": "user", "content": transcribed_text})
+                            
+                            # Process the transcribed text through the main model immediately
+                            with st.spinner("Generating AI response..."):
+                                generation_params = {
+                                    'max_length': max_length,
+                                    'temperature': temperature,
+                                    'top_k': top_k,
+                                    'top_p': top_p,
+                                    'repetition_penalty': repetition_penalty,
+                                    'num_return_sequences': num_return_sequences,
+                                    'early_stopping': early_stopping
+                                }
+                                
+                                # Process the query through your main model
+                                answer, sources, metadata = process_medical_query(
+                                    transcribed_text,
+                                    st.session_state.faiss_index,
+                                    st.session_state.embedding_model,
+                                    st.session_state.optimal_docs,
+                                    st.session_state.model,
+                                    st.session_state.tokenizer,
+                                    **generation_params
+                                )
+                                
+                                # Add assistant response to chat history
+                                st.session_state.messages.append({
+                                    "role": "assistant", 
+                                    "content": answer,
+                                    "sources": sources,
+                                    "metadata": metadata
+                                })
+                            
+                            # Trigger rerun to display the conversation
+                            st.rerun()
+                        else:
+                            st.error("Could not transcribe audio. Please try again.")
+        
+        except Exception:
+            # Fallback to file uploader
+            st.info("🎤 Record audio or upload an audio file:")
+            uploaded_audio = st.file_uploader(
+                "Choose an audio file", 
+                type=['wav', 'mp3', 'm4a', 'flac'],
+                help="Upload an audio file to transcribe"
+            )
+            
+            if uploaded_audio is not None:
+                st.audio(uploaded_audio, format="audio/wav")
+                
+                if st.button("🔄 Transcribe Uploaded Audio"):
+                    with st.spinner("Transcribing your audio..."):
+                        audio_bytes = uploaded_audio.read()
+                        transcribed_text = transcribe_audio(
+                            audio_bytes, 
+                            st.session_state.whisper_model, 
+                            st.session_state.whisper_processor
+                        )
+                        if transcribed_text:
+                            st.success(f"Transcribed: {transcribed_text}")
+                            # Add transcribed text to chat
+                            st.session_state.messages.append({"role": "user", "content": transcribed_text})
+                            
+                            # Process the transcribed text through the main model immediately
+                            with st.spinner("Generating AI response..."):
+                                generation_params = {
+                                    'max_length': max_length,
+                                    'temperature': temperature,
+                                    'top_k': top_k,
+                                    'top_p': top_p,
+                                    'repetition_penalty': repetition_penalty,
+                                    'num_return_sequences': num_return_sequences,
+                                    'early_stopping': early_stopping
+                                }
+                                
+                                # Process the query through your main model
+                                answer, sources, metadata = process_medical_query(
+                                    transcribed_text,
+                                    st.session_state.faiss_index,
+                                    st.session_state.embedding_model,
+                                    st.session_state.optimal_docs,
+                                    st.session_state.model,
+                                    st.session_state.tokenizer,
+                                    **generation_params
+                                )
+                                
+                                # Add assistant response to chat history
+                                st.session_state.messages.append({
+                                    "role": "assistant", 
+                                    "content": answer,
+                                    "sources": sources,
+                                    "metadata": metadata
+                                })
+                            
+                            # Trigger rerun to display the conversation
+                            st.rerun()
+                        else:
+                            st.error("Could not transcribe audio. Please try again.")
+    
+    
 
     # 📱 Footer
     st.markdown("---")

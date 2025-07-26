@@ -22,7 +22,8 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-
+stt-model/
+tts-model/
 # Virtual Environment
 rag_env/
 venv/

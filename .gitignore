@@ -39,7 +39,7 @@ model/
 *.onnx
 *.pt
 *.pth
-*.pkl
+
 *.h5
 *.hdf5
 

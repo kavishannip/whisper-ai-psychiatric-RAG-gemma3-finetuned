@@ -290,6 +290,12 @@ User Speech → Whisper STT → Gemma-3 Processing → Kokoro TTS → Audio Resp
 - Storage: 20GB SSD
 - GPU: NVIDIA RTX 3060+ (8GB VRAM)
 
+#### Developer System (Tested)
+- CPU: 6-core processor (Intel i5-11400F)
+- RAM: 32GB
+- Storage: SSD
+- GPU: NVIDIA RTX 2060 (6GB VRAM)
+
 ### Performance Tips
 
 1. **GPU Acceleration**: Enable CUDA for faster inference

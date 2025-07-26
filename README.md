@@ -416,7 +416,7 @@ The application exposes several internal APIs:
 ## 🏆 Acknowledgments
 
 ### Development Team
-- **DeepFinders Research Team**
+- **DeepFinders Team**
 - **SLTC Research University**
 - **Contributors**: See [CONTRIBUTORS.md](CONTRIBUTORS.md)
 
@@ -426,37 +426,7 @@ The application exposes several internal APIs:
 - Google for Gemma base model
 - Streamlit team for the framework
 
-## 📞 Support & Contact
 
-### Technical Support
-- **Issues**: [GitHub Issues](https://github.com/kavishannip/whisper-ai-psychiatric-RAG-gemma3-finetuned/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/kavishannip/whisper-ai-psychiatric-RAG-gemma3-finetuned/discussions)
-
-### Academic Collaboration
-- **Email**: research@deepfinders.lk
-- **Institution**: SLTC Research University
-
-### Mental Health Resources
-- **Crisis Helpline**: 1926 (Sri Lanka)
-- **International**: [Crisis Text Line](https://www.crisistextline.org/)
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-### Citation
-
-If you use this work in your research, please cite:
-
-```bibtex
-@software{whisper_ai_psychiatric_2025,
-  title={Whisper AI-Psychiatric: A Fine-tuned Mental Health Assistant},
-  author={DeepFinders Research Team},
-  year={2025},
-  institution={SLTC Research University},
-  url={https://github.com/kavishannip/whisper-ai-psychiatric-RAG-gemma3-finetuned}
-}
-```
 
 ---
 

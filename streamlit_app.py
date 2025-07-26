@@ -453,7 +453,7 @@ def load_kokoro_tts_model():
             
             # Initialize Kokoro pipeline with default model (local path not supported in current version)
             pipeline = KPipeline(lang_code='a')  # 'a' for American English
-            st.info("✅ Kokoro-82M TTS model loaded successfully!")
+           
             
             return pipeline
         
@@ -684,7 +684,7 @@ def generate_crisis_response(crisis_level: str, crisis_type: str) -> str:
 🚨 **IMMEDIATE HELP AVAILABLE:**
 • **Sri Lanka Crisis Helpline**: 1926 (24/7)
 • **Emergency Services**: 119
-• **Samaritans of Sri Lanka**: 071-5-1426-26
+• **Sri Lanka Sumithrayo**: +94 112 682 535
 • **SLACPH Hotline**: 091-2-34-99-34
 
 **International:**
@@ -741,8 +741,8 @@ Your safety is the top priority. If you're in immediate danger, please take acti
 
 **IMMEDIATE SAFETY RESOURCES:**
 • **Emergency Services**: 119
-• **Women & Children's Bureau**: 011-2-43-34-44
-• **Women in Crisis Hotline**: 077-6-9-64-7-64
+• **Women & Children's Bureau**: +94 11 2186055
+• **Women's helpline**: +94 11 2186055
 • **Police Emergency**: 119
 
 {emergency_contacts}
@@ -809,7 +809,7 @@ CRITICAL SAFETY PROTOCOLS:
 CRISIS RESOURCES TO INCLUDE WHEN APPROPRIATE:
 - Sri Lanka Crisis Helpline: 1926 (24/7)
 - Emergency Services: 119
-- Samaritans of Sri Lanka: 071-5-1426-26
+- Sri Lanka Sumithrayo: +94 112 682 535
 """
     
     crisis_notice = ""
@@ -1042,17 +1042,17 @@ def process_medical_query(question: str, faiss_index, embedding_model, optimal_d
 def main():
     # Header
     st.markdown('<h1 class="main-header">🧠 Whisper AI-Psychiatric</h1>', unsafe_allow_html=True)
-    st.markdown('<p style="text-align: center; color: #94e2d5; font-size: 1.2rem; margin-bottom: 2rem;">Developed by DeepFinders</p>', unsafe_allow_html=True)
+    st.markdown('<p style="text-align: center; color: #94e2d5; font-size: 1.2rem; margin-bottom: 2rem;">Developed by DeepFinders at SLTC Research University</p>', unsafe_allow_html=True)
     
     # Emergency contacts section
     with st.expander("🚨 Emergency Mental Health Resources", expanded=False):
         st.markdown("""
         ### 🇱🇰 Sri Lanka Emergency Contacts
-        - **National Crisis Helpline**: 1926 (24/7)
+        - **National Mental Health Helpline**: 1926 (24/7)
         - **Emergency Services**: 119
-        - **Samaritans of Sri Lanka**: 071-5-1426-26
-        - **SLACPH Mental Health Hotline**: 091-2-34-99-34
-        - **Mental Health Foundation**: 011-2-68-9909
+        - **Samaritans of Sri Lanka**: +94 112 682 535
+        - **Courage Compassion Commitment (CCC) Foundation**: 1333
+        - **National Authority on Tobacco and Alcohol (NATA)**: 1948
         
         ### 🌍 International Resources
         - **Crisis Text Line**: Text HOME to 741741
@@ -1106,7 +1106,7 @@ def main():
                 st.session_state.kokoro_loaded = True
         
         if st.session_state.model_loaded and st.session_state.faiss_loaded and st.session_state.whisper_loaded and st.session_state.kokoro_loaded:
-            st.success("🎉 All models loaded successfully!")
+            st.success("🟢 All models loaded successfully!")
             time.sleep(1)  # Brief pause for user to see success message
             st.rerun()
         else:
@@ -1168,7 +1168,7 @@ def main():
                 
                 # Display sources if available
                 if "sources" in message and message["sources"]:
-                    with st.expander("📚 View Sources & Details"):
+                    with st.expander(" 📃 View Sources & Details"):
                         # Show metadata if available
                         if "metadata" in message:
                             metadata = message["metadata"]
@@ -1371,7 +1371,7 @@ def main():
     st.markdown("---")
     st.markdown("""
     <div style="text-align: center; color: #666; font-size: 0.8rem;">
-        🧠 Whisper AI-Psychiatric - Developed by DeepFinders<br>
+        🧠 Whisper AI-Psychiatric - Developed by DeepFinders at SLTC Research University<br>
         Powered by HuggingFace Transformers & LangChain | Enhanced Generation Pipeline
     </div>
     """, unsafe_allow_html=True)

@@ -1,5 +1,7 @@
 # 🧠 Whisper AI-Psychiatric
 
+> **⚠️ Disclaimer**: "Whisper AI-Psychiatric" is the name of this application and should not be confused with OpenAI's Whisper speech recognition model. While our app utilizes OpenAI's Whisper model for speech-to-text functionality, "Whisper AI-Psychiatric" refers to our complete mental health assistant system powered by our own fine-tuned version of Google's Gemma-3 model.
+
 [![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Streamlit](https://img.shields.io/badge/streamlit-1.28+-red.svg)](https://streamlit.io/)
 [![HuggingFace](https://img.shields.io/badge/🤗-HuggingFace-yellow.svg)](https://huggingface.co/)

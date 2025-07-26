@@ -416,8 +416,7 @@ The application exposes several internal APIs:
 ## 🏆 Acknowledgments
 
 ### Development Team
-- **DeepFinders Team**
-- **SLTC Research University**
+- **DeepFinders Team (SLTC Research University)**
 - **Contributors**: See [CONTRIBUTORS.md](CONTRIBUTORS.md)
 
 ### Special Thanks
@@ -434,6 +433,6 @@ The application exposes several internal APIs:
 
 **🧠 Whisper AI-Psychiatric** | Developed with ❤️ by **DeepFinders**
 
-[![⭐ Star us on GitHub](https://img.shields.io/github/stars/kavishannip/whisper-ai-psychiatric-RAG-gemma3-finetuned?style=social)](https://github.com/kavishannip/whisper-ai-psychiatric-RAG-gemma3-finetuned)
+
 
 </div>

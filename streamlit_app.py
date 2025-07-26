@@ -210,13 +210,6 @@ with st.sidebar:
     
     st.divider()
     
-    # Audio Settings
-    st.header("🎤 Audio Settings")
-    st.session_state.tts_enabled = st.checkbox("Enable Text-to-Speech", value=st.session_state.tts_enabled)
-    st.session_state.audio_speed = st.slider("Audio Speed", 0.5, 2.0, 1.0, 0.1)
-    
-    st.divider()
-    
     # Enhanced Settings with more options
     st.header("⚙️ Generation Settings")
     temperature = st.slider("Temperature", 0.1, 1.5, 0.6, 0.1, 
@@ -685,7 +678,7 @@ def generate_crisis_response(crisis_level: str, crisis_type: str) -> str:
 • **Sri Lanka Crisis Helpline**: 1926 (24/7)
 • **Emergency Services**: 119
 • **Sri Lanka Sumithrayo**: +94 112 682 535
-• **SLACPH Hotline**: 091-2-34-99-34
+
 
 **International:**
 • **Crisis Text Line**: Text HOME to 741741

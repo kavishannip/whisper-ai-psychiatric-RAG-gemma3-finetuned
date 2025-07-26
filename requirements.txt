@@ -8,6 +8,9 @@ torch>=2.0.0
 transformers>=4.30.0
 accelerate>=0.20.0
 
+# For GPU support with CUDA 12.1 (uncomment if you have NVIDIA GPU)
+# torch>=2.0.0+cu121 --index-url https://download.pytorch.org/whl/cu121
+
 # LangChain & Vector Store
 langchain>=0.1.0
 langchain-community>=0.0.20

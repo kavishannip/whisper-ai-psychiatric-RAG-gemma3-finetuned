@@ -87,9 +87,9 @@
 4. **Download Models**
    
    The application will automatically download required models on first run:
-   - Whisper-tiny (Speech-to-Text)
-   - Kokoro-82M (Text-to-Speech)
-   - Gemma-3-1b Psychology Fine-tuned Model
+   - **Whisper-tiny (Speech-to-Text)**: [openai/whisper-tiny](https://huggingface.co/openai/whisper-tiny)
+   - **Kokoro-82M (Text-to-Speech)**: [hexgrad/Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M)
+   - **KNipun/whisper-psychology-gemma-3-1b**: [KNipun/whisper-psychology-gemma-3-1b](https://huggingface.co/KNipun/whisper-psychology-gemma-3-1b)
 
 5. **Prepare Knowledge Base**
    ```bash

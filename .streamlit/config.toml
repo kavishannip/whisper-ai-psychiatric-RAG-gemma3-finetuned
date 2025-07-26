@@ -1,0 +1,31 @@
+# .streamlit/config.toml
+
+[server]
+# Server settings
+port = 8501
+enableCORS = false
+enableXsrfProtection = false
+maxUploadSize = 200  # MB
+
+[browser]
+# Browser settings
+gatherUsageStats = false
+
+[theme]
+# Theme settings (Dark theme with green accent)
+primaryColor = "#a6e3a1"
+backgroundColor = "#11111b"
+secondaryBackgroundColor = "#1e1e2e"
+textColor = "#cdd6f4"
+font = "sans serif"
+
+[runner]
+# Performance settings
+magicEnabled = true
+installTracer = false
+fixMatplotlib = true
+
+[client]
+# Client settings
+showErrorDetails = true
+toolbarMode = "minimal"

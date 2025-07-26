@@ -90,5 +90,4 @@ secrets.json
 config.json
 credentials.json
 
-# Streamlit
-.streamlit/
+

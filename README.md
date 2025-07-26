@@ -86,7 +86,7 @@
 
 4. **Download Models**
    
-   The application will automatically download required models on first run:
+   
    - **Whisper-tiny (Speech-to-Text)**: [openai/whisper-tiny](https://huggingface.co/openai/whisper-tiny)
    - **Kokoro-82M (Text-to-Speech)**: [hexgrad/Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M)
    - **KNipun/whisper-psychology-gemma-3-1b**: [KNipun/whisper-psychology-gemma-3-1b](https://huggingface.co/KNipun/whisper-psychology-gemma-3-1b)
@@ -199,7 +199,7 @@ Our model was fine-tuned using LoRA (Low-Rank Adaptation) on a comprehensive psy
 2. **Dataset**: jkhedri/psychology-dataset (10,000+ psychology Q&A pairs)
 3. **Method**: LoRA with rank=16, alpha=32
 4. **Training**: 3 epochs, learning rate 2e-4
-5. **Hardware**: NVIDIA GPU with 16GB VRAM
+5. **Google colab**: [Finetune-gemma-3-1b-it.ipynb]([https://huggingface.co/KNipun/whisper-psychology-gemma-3-1b](https://colab.research.google.com/drive/1E3Hb2VgK0q5tzR8kzpzsCGdFNcznQgo9?usp=sharing))
 
 ### Fine-tuning Notebook
 
@@ -416,7 +416,7 @@ The application exposes several internal APIs:
 ## 🏆 Acknowledgments
 
 ### Development Team
-- **DeepFinders Research Team**
+- **DeepFinders Team**
 - **SLTC Research University**
 - **Contributors**: See [CONTRIBUTORS.md](CONTRIBUTORS.md)
 
@@ -426,37 +426,7 @@ The application exposes several internal APIs:
 - Google for Gemma base model
 - Streamlit team for the framework
 
-## 📞 Support & Contact
 
-### Technical Support
-- **Issues**: [GitHub Issues](https://github.com/kavishannip/whisper-ai-psychiatric-RAG-gemma3-finetuned/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/kavishannip/whisper-ai-psychiatric-RAG-gemma3-finetuned/discussions)
-
-### Academic Collaboration
-- **Email**: research@deepfinders.lk
-- **Institution**: SLTC Research University
-
-### Mental Health Resources
-- **Crisis Helpline**: 1926 (Sri Lanka)
-- **International**: [Crisis Text Line](https://www.crisistextline.org/)
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-### Citation
-
-If you use this work in your research, please cite:
-
-```bibtex
-@software{whisper_ai_psychiatric_2025,
-  title={Whisper AI-Psychiatric: A Fine-tuned Mental Health Assistant},
-  author={DeepFinders Research Team},
-  year={2025},
-  institution={SLTC Research University},
-  url={https://github.com/kavishannip/whisper-ai-psychiatric-RAG-gemma3-finetuned}
-}
-```
 
 ---
 

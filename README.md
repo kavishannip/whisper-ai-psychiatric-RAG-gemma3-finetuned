@@ -199,7 +199,7 @@ Our model was fine-tuned using LoRA (Low-Rank Adaptation) on a comprehensive psy
 2. **Dataset**: jkhedri/psychology-dataset (10,000+ psychology Q&A pairs)
 3. **Method**: LoRA with rank=16, alpha=32
 4. **Training**: 3 epochs, learning rate 2e-4
-5. **Hardware**: NVIDIA GPU with 16GB VRAM
+5. **Google colab**: [Finetune-gemma-3-1b-it.ipynb]([https://huggingface.co/KNipun/whisper-psychology-gemma-3-1b](https://colab.research.google.com/drive/1E3Hb2VgK0q5tzR8kzpzsCGdFNcznQgo9?usp=sharing))
 
 ### Fine-tuning Notebook
 

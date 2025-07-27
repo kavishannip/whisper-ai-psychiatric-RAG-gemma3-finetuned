@@ -69,7 +69,20 @@
    # source rag_env/bin/activate  # Linux/Mac
    ```
 
-3. **Install Dependencies**
+3. **GPU Setup (Recommended)**
+   
+   For optimal performance, GPU acceleration is highly recommended:
+   
+   **Install CUDA Toolkit 12.5:**
+   - Download from: [CUDA 12.5.0 Download Archive](https://developer.nvidia.com/cuda-12-5-0-download-archive)
+   - Follow the installation instructions for your operating system
+   
+   **Install PyTorch with CUDA Support:**
+   ```bash
+   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+   ```
+
+4. **Install Dependencies**
    ```bash
    pip install -r requirements.txt
    ```
@@ -86,14 +99,35 @@
    pip install librosa soundfile pyaudio
    ```
 
-4. **Download Models**
+5. **Download Models**
    
+   **Create Model Directories and Download:**
    
-   - **Whisper-tiny (Speech-to-Text)**: [openai/whisper-tiny](https://huggingface.co/openai/whisper-tiny)
-   - **Kokoro-82M (Text-to-Speech)**: [hexgrad/Kokoro-82M](https://huggingface.co/hexgrad/Kokoro-82M)
-   - **KNipun/whisper-psychology-gemma-3-1b**: [KNipun/whisper-psychology-gemma-3-1b](https://huggingface.co/KNipun/whisper-psychology-gemma-3-1b)
+   **Main Language Model:**
+   ```bash
+   mkdir model
+   cd model
+   git clone https://huggingface.co/KNipun/whisper-psychology-gemma-3-1b
+   cd ..
+   ```
+   
+   **Speech-to-Text Model:**
+   ```bash
+   mkdir stt-model
+   cd stt-model
+   git clone https://huggingface.co/openai/whisper-tiny
+   cd ..
+   ```
+   
+   **Text-to-Speech Model:**
+   ```bash
+   mkdir tts-model
+   cd tts-model
+   git clone https://huggingface.co/hexgrad/Kokoro-82M
+   cd ..
+   ```
 
-5. **Prepare Knowledge Base**
+6. **Prepare Knowledge Base**
    ```bash
    python index_documents.py
    ```

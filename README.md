@@ -21,6 +21,10 @@
 - **📊 Real-time Processing**: Streamlit-based interactive web interface
 - **🌍 Multi-language Support**: Optimized for English with Sri Lankan crisis resources
 
+## 📸 Demo
+
+![Demo Screenshot](screenshots/demo.png)
+
 ## 🏗️ Architecture
 
 ### Core Components

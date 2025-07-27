@@ -442,7 +442,7 @@ def load_kokoro_tts_model():
            
             
             # Initialize Kokoro pipeline with default model (local path not supported in current version)
-            pipeline = KPipeline(lang_code='a')  # 'a' for American English
+            pipeline = KPipeline(lang_code='a')  # 'a' for Us English
            
             
             return pipeline

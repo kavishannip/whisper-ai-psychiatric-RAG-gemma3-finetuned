@@ -110,6 +110,14 @@
    git clone https://huggingface.co/KNipun/whisper-psychology-gemma-3-1b
    cd ..
    ```
+   ```python
+   # Application loads the model from this path:
+   def load_model():
+       model_path = "model/Whisper-psychology-gemma-3-1b"
+       tokenizer = AutoTokenizer.from_pretrained(model_path)
+       if tokenizer.pad_token is None:
+           tokenizer.pad_token = tokenizer.eos_token
+   ```
    
    **Speech-to-Text Model:**
    ```bash
@@ -118,6 +126,13 @@
    git clone https://huggingface.co/openai/whisper-tiny
    cd ..
    ```
+   ```python
+   # Application loads the Whisper model from this path:
+   @st.cache_resource
+   def load_whisper_model():
+       model_path = "stt-model/whisper-tiny"
+       processor = WhisperProcessor.from_pretrained(model_path)
+   ```
    
    **Text-to-Speech Model:**
    ```bash
@@ -125,6 +140,14 @@
    cd tts-model
    git clone https://huggingface.co/hexgrad/Kokoro-82M
    cd ..
+   ```
+   ```python
+   # Application loads the Kokoro TTS model from this path:
+   from kokoro import KPipeline
+   
+   local_model_path = "tts-model/Kokoro-82M"
+   if os.path.exists(local_model_path):
+       st.info(f"✅ Local Kokoro-82M model found at {local_model_path}")
    ```
 
 6. **Prepare Knowledge Base**

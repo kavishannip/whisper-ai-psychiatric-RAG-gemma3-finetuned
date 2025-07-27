@@ -1,5 +1,3 @@
-# streamlit_app.py
-#v2 - Added Speech-to-Text and Text-to-Speech features
 import streamlit as st
 import logging
 import torch
@@ -21,7 +19,7 @@ import wave
 import scipy.io.wavfile as wavfile
 from audio_recorder_streamlit import audio_recorder
 
-# 🔧 COMPLETE TORCH COMPILATION DISABLE for Windows compatibility
+#  COMPLETE TORCH COMPILATION DISABLE for Windows compatibility
 os.environ["TORCH_COMPILE_DISABLE"] = "1"
 os.environ["TORCHDYNAMO_DISABLE"] = "1" 
 os.environ["TORCH_DISABLE_DYNAMO"] = "1"
@@ -46,7 +44,7 @@ torch.backends.cuda.enable_math_sdp(True)
 # Logging setup
 logging.basicConfig(level=logging.INFO)
 
-# 🎨 Streamlit page configuration
+# Streamlit page configuration
 st.set_page_config(
     page_title="Whisper AI-Psychiatric",
     page_icon="💚",
@@ -54,7 +52,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 🎯 Custom CSS for dark theme with green accents
+# Custom CSS for theme
 st.markdown("""
 <style>
     .main-header {
@@ -167,7 +165,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 🚀 Initialize session state
+# Initialize session state
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "model_loaded" not in st.session_state:
@@ -183,7 +181,7 @@ if "audio_speed" not in st.session_state:
 if "kokoro_loaded" not in st.session_state:
     st.session_state.kokoro_loaded = False
 
-# 📊 Sidebar for model status and settings
+# Sidebar for model status and settings
 with st.sidebar:
     st.header("🔧 Model Status")
     
@@ -210,7 +208,7 @@ with st.sidebar:
     
     st.divider()
     
-    # Enhanced Settings with more options
+    # Settings 
     st.header("⚙️ Generation Settings")
     temperature = st.slider("Temperature", 0.1, 1.5, 0.6, 0.1, 
                            help="Controls randomness. Lower = more deterministic")
@@ -237,7 +235,7 @@ with st.sidebar:
         st.session_state.messages = []
         st.rerun()
 
-# 🔄 Model Loading Functions
+# Model Loading Functions
 @st.cache_resource
 def load_faiss_index():
     """Load FAISS vectorstore with caching and get document count"""
@@ -441,8 +439,7 @@ def load_kokoro_tts_model():
             
             # Check if local model path exists (for information only)
             local_model_path = "tts-model/Kokoro-82M"
-            if os.path.exists(local_model_path):
-                st.info(f"✅ Local Kokoro-82M model found at {local_model_path}")
+           
             
             # Initialize Kokoro pipeline with default model (local path not supported in current version)
             pipeline = KPipeline(lang_code='a')  # 'a' for American English

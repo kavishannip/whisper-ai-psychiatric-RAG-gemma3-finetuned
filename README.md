@@ -225,9 +225,7 @@ The application supports extensive customization through the sidebar:
 - **Number of Sequences**: Multiple response variants (1 - 3)
 - **Early Stopping**: Automatic response termination
 
-#### Audio Settings
-- **TTS Enable/Disable**: Toggle text-to-speech
-- **Audio Speed**: Speech rate control (0.5x - 2.0x)
+
 
 ### Environment Variables
 

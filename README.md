@@ -23,9 +23,15 @@
 
 ## 📸 Demo
 
-[![Whisper AI-Psychiatric Demo](https://img.youtube.com/vi/ZdPPgNA2HxQ/0.jpg)](https://youtu.be/ZdPPgNA2HxQ)
-
-> 🎥 **Watch the complete demo**: Click the image above to see Whisper AI-Psychiatric in action!
+<div align="center">
+  <a href="https://youtu.be/ZdPPgNA2HxQ">
+    <img src="https://img.youtube.com/vi/ZdPPgNA2HxQ/maxresdefault.jpg" alt="Whisper AI-Psychiatric Demo Video" width="600">
+  </a>
+  
+  **🎥 [Click here to watch the full demo video](https://youtu.be/ZdPPgNA2HxQ)**
+  
+  *See Whisper AI-Psychiatric in action with voice interaction, crisis detection, and real-time responses!*
+</div>
 
 ## 🏗️ Architecture
 

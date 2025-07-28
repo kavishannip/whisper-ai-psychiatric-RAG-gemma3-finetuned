@@ -23,7 +23,9 @@
 
 ## 📸 Demo
 
-![Demo Screenshot](screenshots/demo.png)
+[![Whisper AI-Psychiatric Demo](https://img.youtube.com/vi/ZdPPgNA2HxQ/0.jpg)](https://youtu.be/ZdPPgNA2HxQ)
+
+> 🎥 **Watch the complete demo**: Click the image above to see Whisper AI-Psychiatric in action!
 
 ## 🏗️ Architecture
 

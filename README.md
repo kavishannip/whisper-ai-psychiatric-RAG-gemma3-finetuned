@@ -437,23 +437,6 @@ User Speech → Whisper STT → Gemma-3 Processing → Kokoro TTS → Audio Resp
 3. **Batch Processing**: Process multiple queries efficiently
 4. **Memory Management**: Automatic cleanup and optimization
 
-## 🧪 Testing
-
-### Unit Tests
-```bash
-python -m pytest tests/
-```
-
-### Integration Tests
-```bash
-python tests/test_integration.py
-```
-
-### Performance Tests
-```bash
-python tests/test_performance.py
-```
-
 ## 📈 Usage Analytics
 
 ### Key Metrics

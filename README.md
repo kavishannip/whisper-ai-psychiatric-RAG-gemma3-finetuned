@@ -35,27 +35,107 @@
 
 ## 🏗️ Architecture
 
+<div align="center">
+  <img src="screenshots/Whisper AI-Psychiatric Architecture.png" alt="Whisper AI-Psychiatric System Architecture" width="800">
+  
+  *Complete system architecture showing the integration of speech processing, AI models, and safety systems*
+</div>
+
+### System Overview
+
+Whisper AI-Psychiatric follows a modular, AI-driven architecture that seamlessly integrates multiple cutting-edge technologies to deliver comprehensive mental health support. The system is designed with safety-first principles, ensuring reliable crisis detection and appropriate response mechanisms.
+
 ### Core Components
 
-1. **Speech Processing**
-   - **Whisper-tiny**: Speech-to-text transcription
+#### 1. **User Interface Layer**
+   - **Streamlit Web Interface**: Interactive, real-time web application
+   - **Voice Input/Output**: Browser-based audio recording and playback
+   - **Multi-modal Interaction**: Support for both text and voice communication
+   - **Real-time Feedback**: Live transcription and response generation
+
+#### 2. **Speech Processing Pipeline**
+   - **Whisper-tiny**: OpenAI's lightweight speech-to-text transcription
+     - Optimized for real-time processing
+     - Multi-language support with English optimization
+     - Noise-robust audio processing
    - **Kokoro-82M**: High-quality text-to-speech synthesis
+     - Natural voice generation with emotional context
+     - Variable speed control (0.5x to 2.0x)
+     - Fallback synthetic tone generation
 
-2. **Language Model**
+#### 3. **AI Language Model Stack**
    - **Base Model**: [Google Gemma-3-1b-it](https://huggingface.co/google/gemma-3-1b-it)
+     - Instruction-tuned foundation model
+     - Optimized for conversational AI
    - **Fine-tuned Model**: [KNipun/whisper-psychology-gemma-3-1b](https://huggingface.co/KNipun/whisper-psychology-gemma-3-1b)
+     - Specialized for psychological counseling
+     - Trained on 10,000+ psychology Q&A pairs
    - **Training Dataset**: [jkhedri/psychology-dataset](https://huggingface.co/datasets/jkhedri/psychology-dataset)
-   - **Fine-tuning Method**: LoRA (Low-Rank Adaptation)
+   - **Fine-tuning Method**: LoRA (Low-Rank Adaptation) with rank=16, alpha=32
 
-3. **Knowledge Base**
-   - FAISS vector database with medical literature
-   - Comprehensive psychological and psychiatric resources
-   - Real-time document retrieval and ranking
+#### 4. **Knowledge Retrieval System (RAG)**
+   - **FAISS Vector Database**: High-performance similarity search
+     - Medical literature embeddings
+     - Real-time document retrieval
+     - Contextual ranking algorithms
+   - **Document Sources**: 
+     - Oxford Handbook of Psychiatry
+     - Psychiatric Mental Health Nursing resources
+     - Depression and anxiety treatment guides
+     - WHO mental health guidelines
 
-4. **Safety Systems**
-   - Crisis detection algorithms
-   - Emergency resource integration
-   - Trauma-informed response protocols
+#### 5. **Safety & Crisis Management**
+   - **Crisis Detection Engine**: Multi-layered safety algorithms
+     - Keyword-based detection
+     - Contextual sentiment analysis
+     - Risk level classification (High/Moderate/Low)
+   - **Emergency Response System**:
+     - Automatic crisis resource provision
+     - Local emergency contact integration
+     - Trauma-informed response protocols
+   - **Safety Resources**: Sri Lankan and international crisis helplines
+
+#### 6. **Processing Flow**
+
+```
+User Input (Voice/Text) 
+    ↓
+[Audio] → Whisper STT → Text Transcription
+    ↓
+Crisis Detection Scan → [High Risk] → Emergency Resources
+    ↓
+RAG Knowledge Retrieval → Relevant Context Documents
+    ↓
+Gemma-3 Fine-tuned Model → Response Generation
+    ↓
+Safety Filter → Crisis Check → Approved Response
+    ↓
+Text → Kokoro TTS → Audio Output
+    ↓
+User Interface Display (Text + Audio)
+```
+
+### Technical Implementation
+
+#### Model Integration
+- **Torch Framework**: PyTorch-based model loading and inference
+- **Transformers Library**: HuggingFace integration for seamless model management
+- **CUDA Acceleration**: GPU-optimized processing for faster response times
+- **Memory Management**: Efficient caching and cleanup systems
+
+#### Data Flow Architecture
+1. **Input Processing**: Audio/text normalization and preprocessing
+2. **Safety Screening**: Initial crisis indicator detection
+3. **Context Retrieval**: FAISS-based document similarity search
+4. **AI Generation**: Fine-tuned model inference with retrieved context
+5. **Post-processing**: Safety validation and response formatting
+6. **Output Synthesis**: Text-to-speech conversion and delivery
+
+#### Scalability Features
+- **Modular Design**: Independent component scaling
+- **Caching Mechanisms**: Model and response caching for efficiency
+- **Resource Optimization**: Dynamic GPU/CPU allocation
+- **Performance Monitoring**: Real-time system metrics tracking
 
 ## 🚀 Quick Start
 

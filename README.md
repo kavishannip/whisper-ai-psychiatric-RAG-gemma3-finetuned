@@ -325,31 +325,6 @@ The application supports extensive customization through the sidebar:
 - **Number of Sequences**: Multiple response variants (1 - 3)
 - **Early Stopping**: Automatic response termination
 
-
-
-### Environment Variables
-
-Create a `.env` file for custom configurations:
-
-```env
-# Model Configurations
-MODEL_PATH=model/Whisper-psychology-gemma-3-1b
-WHISPER_MODEL_PATH=stt-model/whisper-tiny
-TTS_MODEL_PATH=tts-model/Kokoro-82M
-
-# FAISS Configuration
-FAISS_INDEX_PATH=faiss_index
-OPTIMAL_DOCS=5
-
-# Audio Configuration
-AUDIO_SAMPLE_RATE=16000
-TTS_ENABLED=true
-
-# Torch Configuration
-TORCH_COMPILE_DISABLE=1
-CUDA_VISIBLE_DEVICES=0
-```
-
 ## 🎓 Model Fine-tuning
 
 ### Fine-tuning Process

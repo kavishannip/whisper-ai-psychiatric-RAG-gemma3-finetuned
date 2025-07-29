@@ -175,6 +175,18 @@ User Interface Display (Text + Audio)
    ```
 
 4. **Install Dependencies**
+   
+   > **⚠️ Important**: If you installed PyTorch with CUDA support in step 3, you need to **remove or comment out** the PyTorch-related lines in `requirements.txt` to avoid conflicts.
+   
+   **Edit requirements.txt first:**
+   ```bash
+   # Comment out or remove these lines in requirements.txt:
+   # torch>=2.0.0
+   # torchvision>=0.15.0
+   # torchaudio>=2.0.0
+   ```
+   
+   **Then install remaining dependencies:**
    ```bash
    pip install -r requirements.txt
    ```

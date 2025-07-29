@@ -182,8 +182,7 @@ User Interface Display (Text + Audio)
    ```bash
    # Comment out or remove these lines in requirements.txt:
    # torch>=2.0.0
-   # torchvision>=0.15.0
-   # torchaudio>=2.0.0
+   
    ```
    
    **Then install remaining dependencies:**

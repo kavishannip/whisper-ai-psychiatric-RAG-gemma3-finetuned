@@ -21,6 +21,12 @@
 - **📊 Real-time Processing**: Streamlit-based interactive web interface
 - **🌍 Multi-language Support**: Optimized for English with Sri Lankan crisis resources
 
+### 🌐 Live Demo
+
+**[Try the live demo on Hugging Face Spaces](https://huggingface.co/spaces/KNipun/Whisper-AI-Psychiatric)**
+
+> **⚠️ Note**: The live demo runs on Hugging Face Spaces free tier which has limited resources. You may experience slower response times or performance issues. For optimal performance, we recommend running the application locally with GPU support.
+
 ## 📸 Demo
 
 <div align="center">

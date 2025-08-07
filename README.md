@@ -259,7 +259,7 @@ User Interface Display (Text + Audio)
        st.info(f"✅ Local Kokoro-82M model found at {local_model_path}")
    ```
 
-6. **Prepare Knowledge Base**
+6. **Prepare Knowledge Base (You only need to run this if you're adding new documents to the data folder. Otherwise, you can skip it.)**
    ```bash
    python index_documents.py
    ```

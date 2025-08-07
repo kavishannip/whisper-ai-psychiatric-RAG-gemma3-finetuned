@@ -27,14 +27,14 @@
 
 > **⚠️ Note**: The live demo runs on Hugging Face Spaces free tier which has limited resources. You may experience slower response times or performance issues. For optimal performance, we recommend running the application locally with GPU support.
 
-## 📸 Demo
+## 🎬 Code Explanation + Demo
 
 <div align="center">
-  <a href="https://youtu.be/ZdPPgNA2HxQ">
-    <img src="https://img.youtube.com/vi/ZdPPgNA2HxQ/maxresdefault.jpg" alt="Whisper AI-Psychiatric Demo Video" width="600">
+  <a href="https://youtu.be/ZRykgI2qO5g">
+    <img src="https://img.youtube.com/vi/ZRykgI2qO5g/maxresdefault.jpg" alt="Whisper AI-Psychiatric Demo Video" width="600">
   </a>
   
-  **🎥 [Click here to watch the full demo video](https://youtu.be/ZdPPgNA2HxQ)**
+  **🎥 [Click here to watch the full demo video](https://youtu.be/ZRykgI2qO5g)**
   
   *See Whisper AI-Psychiatric in action with voice interaction, crisis detection, and real-time responses!*
 </div>
